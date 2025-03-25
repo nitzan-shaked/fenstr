@@ -48,8 +48,9 @@ end
 
 
 function Hyper:startImpl()
-	self._orig_capslock_light = hid.capslock.get()
+	self._orig_capslock_state = hid.capslock.get()
 	hid.capslock.set(false)
+	hid.led.set("caps", false)
 
 	local key_mapping_str = hidutil.run_hidutil("property", "--get", "UserKeyMapping")
 	self._orig_key_mapping = plist.readString(key_mapping_str)
@@ -100,7 +101,7 @@ function Hyper:stopImpl()
 			["UserKeyMapping"] = self._orig_key_mapping,
 		})
 	)
-	hid.caps.set(self._orig_capslock_light)
+	hid.caps.set(self._orig_capslock_state)
 end
 
 
@@ -168,12 +169,12 @@ function Hyper:_enter()
 	self._anoter_key_pressed = false
 	self._modal_active = true
 	self._modal:enter()
-	hid.led.set("caps", true)
+	-- hid.led.set("caps", true)
 end
 
 
 function Hyper:_exit()
-	hid.led.set("caps", false)
+	-- hid.led.set("caps", false)
 	self._modal_active = false
 	self._modal:exit()
 	hs.eventtap.event.newKeyEvent(hs.keycodes.map.capslock, false):post()

@@ -22,13 +22,13 @@ end
 
 function FenstrMenubarWidget:loadImpl()
     self._menubar_item = hs.menubar.new(true, "fenstr_menubar_widget")
-    self._menubar_item:setTitle(hs.styledtext.new(
-        "F",
-        {
-            font={name="Academy Engraved LET", size=20},
-            baselineOffset=-2.0,
-        }
-    ))
+    -- self._menubar_item:setTitle(hs.styledtext.new(
+    --     "F",
+    --     {
+    --         font={name="Academy Engraved LET", size=20},
+    --         baselineOffset=-2.0,
+    --     }
+    -- ))
     self._menubar_item:setIcon([[ASCII:
 . . . . . . . . . . . . . . . . . .
 . 1 # # # # # # # 5 # # # # # # 1 .
