@@ -1,13 +1,9 @@
 local Module = require("module")
 local class = require("utils.class")
 
-local spaces = require("hs.spaces")
-local screen = require("hs.screen")
-
 
 ---@class SpaceIdWidget: Module
 local SpaceIdWidget = class.make_class("SpaceIdWidget", Module)
-
 
 local _CFG_CELL_SIZE = {
 	name="cell_size",
@@ -61,15 +57,15 @@ end
 function SpaceIdWidget:startImpl()
 	self._screen_watcher:start()
 	self._space_watcher:start()
-	self:_on_screen_changed()
     self._menubar_item:returnToMenuBar()
+	self._menubar_item:setClickCallback(function() self:_on_menu_click() end)
+	self:_on_screen_changed()
 end
 
 function SpaceIdWidget:stopImpl()
     self._menubar_item:removeFromMenuBar()
 	self._screen_watcher:stop()
 	self._system_watcher:stop()
-	-- self._canvas:hide()
 end
 
 function SpaceIdWidget:unloadImpl()
@@ -77,7 +73,7 @@ function SpaceIdWidget:unloadImpl()
 	self._menubar_item = nil
 
 	if self._canvas ~= nil then
-		-- self._canvas:hide()
+		self._canvas:hide()
 		self._canvas:delete()
 		self._canvas = nil
 	end
@@ -89,26 +85,24 @@ end
 
 function SpaceIdWidget:_rebuild_canvas()
 	if self._canvas ~= nil then
-		-- self._canvas:hide()
+		self._canvas:hide()
 		self._canvas:delete()
 		self._canvas = nil
 	end
-
-	self._total_width  = self._frame_thickness + self._cell_size * #self._spaces_for_screen
-	self._total_height = self._frame_thickness + self._cell_size
 
 	self._curr_space_num = nil
 
 	self._canvas = hs.canvas.new({
 		x = 0,
 		y = 0,
-		w = self._total_width,
-		h = self._total_height,
+		w = self._frame_thickness + self._cell_size * #self._spaces_for_screen,
+		h = self._frame_thickness + self._cell_size,
 	})
+	self._canvas:behavior(hs.canvas.windowBehaviors.canJoinAllSpaces)
 	self._canvas:appendElements({
 		type = "rectangle",
 		action = "fill",
-		fillColor = {black = 1, alpha = 0.2},
+		fillColor = {black = 1, alpha = 0.15},
 		roundedRectRadii = {xRadius = 5, yRadius = 5},
 	})
 	self._canvas:appendElements({
@@ -128,28 +122,30 @@ function SpaceIdWidget:_rebuild_canvas()
 			textColor = {white = 1, alpha = 0.4},
 			frame = {
 				x = self._frame_thickness / 2 + (i - 1) * self._cell_size,
-				y = self._frame_thickness / 2,
+				y = self._frame_thickness / 2 + 1,
 				w = self._cell_size,
 				h = self._cell_size,
 			},
 			textAlignment = "center",
 		})
 	end
-	-- self._canvas:level(hs.canvas.windowLevels.overlay)
-	-- self._canvas:behavior(hs.canvas.windowBehaviors.canJoinAllSpaces)
-	-- local f = self._primary_screen:fullFrame()
-	-- local dy = (self._primary_screen:name() == "Built-in Retina Display") and 7 or 1
-    -- self._canvas:topLeft({
-	-- 	x = f.x + f.w / 2 - 110 - self._total_width,
-	-- 	y = f.y + dy,
-	-- })
-	-- self._canvas:show()
 end
 
+function SpaceIdWidget:_get_menubar_item_actual_frame()
+	local f = self._menubar_item:frame()
+	local w = self._cell_size * #self._spaces_for_screen
+	local h = self._cell_size
+	local x0 = f.center.x - w / 2
+	local y0 = f.center.y - h / 2
+	return hs.geometry.rect(x0, y0, w, h)
+end
+
+--@param space_num number
 function SpaceIdWidget:_dim_space_num(space_num)
 	self._canvas["text_" .. space_num].textColor.alpha = 0.4
 end
 
+--@param space_num number
 function SpaceIdWidget:_highlight_space_num(space_num)
 	self._canvas["text_" .. space_num].textColor.alpha = 1.0
 end
@@ -158,6 +154,7 @@ function SpaceIdWidget:_hide_frame()
 	self._canvas.curr_frame.action = "skip"
 end
 
+--@param space_num number
 function SpaceIdWidget:_set_frame(space_num)
 	self._canvas.curr_frame.frame = {
 		x = self._frame_thickness / 2 + (space_num - 1) * self._cell_size,
@@ -168,44 +165,66 @@ function SpaceIdWidget:_set_frame(space_num)
 	self._canvas.curr_frame.action = "stroke"
 end
 
-function SpaceIdWidget:_on_space_changed()
+--@param space_num number | nil
+function SpaceIdWidget:_set_space_num(space_num)
 	if self._curr_space_num ~= nil then
 		self:_dim_space_num(self._curr_space_num)
 	end
-
-	local space_id = spaces.activeSpaceOnScreen()
-	if spaces.spaceType(space_id) ~= "user" then
-		self._curr_space_num = nil
+	if space_num == nil then
 		self:_hide_frame()
-		-- self._canvas:hide()
-		self._menubar_item:setIcon(self._canvas:imageFromCanvas())
+	else
+		self:_highlight_space_num(space_num)
+		self:_set_frame(space_num)
+	end
+	self._curr_space_num = space_num
+	self._menubar_item:setIcon(self._canvas:imageFromCanvas())
+	-- local f = self:_get_menubar_item_actual_frame()
+	-- self._canvas:topLeft(f.xy)
+	-- self._canvas:show()
+end
+
+--@param space_num number
+function SpaceIdWidget:_goto_space_num(space_num)
+	if space_num < 1 or space_num > #self._spaces_for_screen then return end
+	if space_num == self._curr_space_num then return end
+	hs.eventtap.event.newKeyEvent(hs.keycodes.map.ctrl, true):post()
+	hs.eventtap.event.newKeyEvent(tostring(space_num), true):post()
+	hs.eventtap.event.newKeyEvent(tostring(space_num), false):post()
+	hs.eventtap.event.newKeyEvent(hs.keycodes.map.ctrl, false):post()
+end
+
+function SpaceIdWidget:_on_menu_click()
+	local mouse = hs.mouse.absolutePosition()
+	local f = self:_get_menubar_item_actual_frame()
+	if mouse.x < f.x1 or mouse.x > f.x2 or mouse.y < f.y1 or mouse.y > f.y2 then
 		return
 	end
+	mouse.x = mouse.x - f.x1
+	mouse.y = mouse.y - f.y1
+	local space_num = math.floor(mouse.x // self._cell_size + 1)
+	self:_goto_space_num(space_num)
+end
 
-	-- self._canvas:show()
+function SpaceIdWidget:_on_space_changed()
+	local space_id = hs.spaces.activeSpaceOnScreen()
+
 	for i, v in ipairs(self._spaces_for_screen) do
 		if v == space_id then
-			self._curr_space_num = i
-			self:_highlight_space_num(self._curr_space_num)
-			self:_set_frame(self._curr_space_num)
-			self._menubar_item:setIcon(self._canvas:imageFromCanvas())
+			self:_set_space_num(i)
 			return
 		end
 	end
 
-	self._curr_space_num = nil
-	self:_hide_frame()
-	self._menubar_item:setIcon(self._canvas:imageFromCanvas())
+	self:_set_space_num(nil)
 end
 
 function SpaceIdWidget:_on_screen_changed()
-	self._primary_screen = screen.primaryScreen()
-	self._spaces_for_screen = {}
-	for i, v in ipairs(spaces.spacesForScreen()) do
-		if spaces.spaceType(v) == "user" then
-			table.insert(self._spaces_for_screen, v)
+	self._spaces_for_screen = hs.fnutils.filter(
+		hs.spaces.spacesForScreen(),
+		function(space_id)
+			return hs.spaces.spaceType(space_id) == "user"
 		end
-	end
+	)
 	self:_rebuild_canvas()
 	self:_on_space_changed()
 end
