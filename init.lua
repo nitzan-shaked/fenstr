@@ -36,7 +36,7 @@ core_modules.hyper:bind(".", function() SettingsManager.showSettingsDialog(false
 --[[ EXPERIMENTAL TILING ]]--
 
 -- local MyContainer = require("tiling.my_container")
--- local c0 = MyContainer(hs.screen.primaryScreen())
+-- local c0 = MyContainer(nil, hs.screen.primaryScreen())
 
 -- local iterm2_windows = hs.window.filter.new("iTerm2"):getWindows()
 
@@ -45,15 +45,15 @@ core_modules.hyper:bind(".", function() SettingsManager.showSettingsDialog(false
 -- local c3 = nil
 
 -- if #iterm2_windows > 0 then
--- 	c1 = MyContainer(nil, table.remove(iterm2_windows, 1))
+-- 	c1 = MyContainer(table.remove(iterm2_windows, 1))
 -- end
 
 -- if #iterm2_windows > 0 then
--- 	c2 = MyContainer(nil, table.remove(iterm2_windows, 1))
+-- 	c2 = MyContainer(table.remove(iterm2_windows, 1))
 -- end
 
 -- if #iterm2_windows > 0 then
--- 	c3 = MyContainer(nil, table.remove(iterm2_windows, 1))
+-- 	c3 = MyContainer(table.remove(iterm2_windows, 1))
 -- end
 
 -- c0:set_layout_direction("horizontal")
@@ -73,6 +73,6 @@ core_modules.hyper:bind(".", function() SettingsManager.showSettingsDialog(false
 -- 	c2:resize_child(2, 0.2)
 -- end
 
--- if c1 ~= nil then
+-- if c1 and c2 then
 -- 	c0:resize_child(1, -0.2)
 -- end
