@@ -10,20 +10,14 @@ local MyContainer = class.make_class("MyContainer")
 
 
 ---@param screen Screen | nil
----@param content string
-function MyContainer:__init__(screen, content)
-    self._screen = screen
-    self._is_top_level = (screen ~= nil)
+---@param w Window | nil
+function MyContainer:__init__(screen, w)
 
-    self._rect = screen and hs.geometry.rect(
-        screen:frame().x + EXT_MARGIN,
-        screen:frame().y + EXT_MARGIN,
-        screen:frame().w - 2 * EXT_MARGIN,
-        screen:frame().h - 2 * EXT_MARGIN
-    ) or nil
+    ---@type Geometry | nil
+    self._rect = nil
 
-    ---@type string | nil
-    self._content = content
+    ---@type Window | nil
+    self._window = w
 
     ---@type string | nil
     self._layout_direction = "long_axis"
@@ -40,25 +34,28 @@ function MyContainer:__init__(screen, content)
         action = "stroke",
         strokeColor = {white = 1, alpha = 1},
     })
-    self._canvas:appendElements({
-        id = "text",
-        type = "text",
-        action = "skip",
-        text = self._content,
-        textSize = 16,
-        textColor = {red=0, green=0.6, blue = 0.8, alpha = 0.7},
-        frame = {x = 0, y = 0, w = "100%", h = "100%"},
-        textAlignment = "right",
-    })
-    self:_redraw()
+
+    if screen ~= nil then
+        self:_set_rect(hs.geometry.rect(
+            screen:frame().x + EXT_MARGIN,
+            screen:frame().y + EXT_MARGIN,
+            screen:frame().w - 2 * EXT_MARGIN,
+            screen:frame().h - 2 * EXT_MARGIN
+        ))
+    end
+
+    if w ~= nil then
+        self:_set_window(w)
+    end
 end
 
 
----@param content string | nil
-function MyContainer:set_content(content)
+function MyContainer:delete()
     assert(#self._children == 0)
-    self._content = content
-    self:_redraw()
+    self._canvas:hide()
+    self._canvas:delete()
+    self._w = nil
+    self._rect = nil
 end
 
 
@@ -72,15 +69,11 @@ end
 
 ---@param new_child MyContainer
 function MyContainer:append_child(new_child)
-    if self._content ~= nil then
-        assert(#self._children == 0)
-        local wrapper_child = MyContainer()
-        wrapper_child:set_content(self._content)
-        self._content = nil
+    if self._window ~= nil then
+        local wrapper_child = MyContainer(nil, self._window)
+        self._window = nil
         table.insert(self._children, wrapper_child)
         table.insert(self._children_ratios, 1)
-    else
-        assert(#self._children >= 2)
     end
 
     table.insert(self._children, new_child)
@@ -90,8 +83,6 @@ function MyContainer:append_child(new_child)
         self._children_ratios[i] = new_ratio
     end
 
-    assert(#self._children >= 2)
-
     self:_relayout()
 end
 
@@ -99,15 +90,13 @@ end
 ---@param i_child number
 function MyContainer:remove_child(i_child)
     assert(i_child >= 1 and i_child <= #self._children)
+
     local child = self._children[i_child]
     local child_ratio = self._children_ratios[i_child]
 
-    assert(#child._children == 0)
-    child:_set_rect(nil)
-    child._content = nil
-
     table.remove(self._children, i_child)
     table.remove(self._children_ratios, i_child)
+    child:delete()
 
     if #self._children >= 2 then
         local delta_ratio_others = child_ratio / #self._children
@@ -116,14 +105,17 @@ function MyContainer:remove_child(i_child)
         end
 
     elseif #self._children == 1 then
-        local wrapper_child = self._children[1]
-        self._content = wrapper_child._content
-        wrapper_child._content = nil
-        wrapper_child:_set_rect(nil)
-        self._children = {}
-        self._children_ratios = {}
+        local only_child = self._children[1]
+        local only_child_window = only_child._window
+        if only_child_window == nil then
+            assert(#only_child._children > 0)
+        else
+            self:_set_window(only_child_window)
+            only_child:delete()
+            self._children = {}
+            self._children_ratios = {}
+        end
     end
-    assert(#self._children == 0 or #self._children >= 2)
 
     self:_relayout()
 end
@@ -134,6 +126,7 @@ end
 function MyContainer:resize_child(i_child, delta_ratio)
     assert(#self._children > 1)
     assert(i_child >= 1 and i_child <= #self._children)
+    if delta_ratio == 0 then return end
     local delta_ratio_others = delta_ratio / (#self._children - 1)
     for i, _ in ipairs(self._children_ratios) do
         if i == i_child then
@@ -146,24 +139,34 @@ function MyContainer:resize_child(i_child, delta_ratio)
 end
 
 
----@param rect Geometry | nil
+---@param rect Geometry
 function MyContainer:_set_rect(rect)
-    assert(not self._is_top_level)
-    if rect == self._rect then return end
-    if rect == nil then
-        self._rect = nil
-    else
-        self._rect = hs.geometry(rect)
+    if self._rect == rect then return end
+    self._rect = rect
+    if self._window ~= nil then
+        self._window:setFrame(self._rect)
     end
     self:_relayout()
 end
 
 
-function MyContainer:_relayout()
-    if self._rect == nil then
-        self:_redraw()
+---@param w Window
+function MyContainer:_set_window(w)
+    assert(#self._children == 0)
+    if self._window ~= nil then
+        assert(self._window:id() == w:id())
         return
     end
+    assert(self._window == nil)
+    self._window = w
+    if self._rect ~= nil then
+        self._window:setFrame(self._rect)
+    end
+end
+
+
+function MyContainer:_relayout()
+    if self._rect == nil then return end
 
     if self._layout_direction == "long_axis" then
         if self._rect.w >= self._rect.h then
@@ -189,7 +192,7 @@ function MyContainer:_relayout()
         assert(false, "Not implemented")
     end
 
-    self:_redraw()
+    self:_redraw_frame()
 end
 
 
@@ -215,27 +218,12 @@ function MyContainer:_layout_children_vertically()
 end
 
 
-function MyContainer:_redraw()
-    if self._rect == nil then
-        self._canvas:hide()
-        return
-    end
-
+function MyContainer:_redraw_frame()
     self._canvas:frame(self._rect)
     if #self._children == 0 then
         self._canvas:show()
     else
         self._canvas:hide()
-    end
-
-    local txt_element = self._canvas["text"]
-
-    if self._content == nil then
-        txt_element.text = ""
-        txt_element.action = "skip"
-    else
-        txt_element.text = self._content
-        txt_element.action = "stroke"
     end
 end
 
