@@ -31,6 +31,14 @@ function Geometry:inside(other) end
 ---@operator call:Geometry
 local module = {}
 
+---@param x number
+---@param y number
+---@param w number
+---@param h number
+---@return Geometry
+function module.rect(x, y, w, h) end
+
+
 ---@param w number
 ---@param h number
 ---@return Geometry

@@ -7,7 +7,7 @@ local class = require("utils.class")
 local hidutil = require("core.hyper.hidutil")
 
 
----@class HyperOrEsc: Module
+---@class Hyper: Module
 local Hyper = class.make_class("Hyper", Module)
 
 
