@@ -35,44 +35,29 @@ core_modules.hyper:bind(".", function() SettingsManager.showSettingsDialog(false
 
 --[[ EXPERIMENTAL TILING ]]--
 
--- local MyContainer = require("tiling.my_container")
--- local c0 = MyContainer(nil, hs.screen.primaryScreen())
+local MyContainer = require("tiling.my_container")
+local c0 = MyContainer.top_level_for_screen(hs.screen.primaryScreen())
 
--- local iterm2_windows = hs.window.filter.new("iTerm2"):getWindows()
+local function parent_for_new_window(w)
+	local parent = c0
+	while #parent._children > 0 do
+		parent = parent._children[#parent._children]
+	end
+	return parent
+end
 
--- local c1 = nil
--- local c2 = nil
--- local c3 = nil
+local wf = hs.window.filter.new("iTerm2")
 
--- if #iterm2_windows > 0 then
--- 	c1 = MyContainer(table.remove(iterm2_windows, 1))
--- end
+wf:subscribe(hs.window.filter.windowAllowed, function(w)
+	if MyContainer.existing_for_window(w) then return end
+	local parent = parent_for_new_window(w)
+	local new_container = MyContainer.new_for_window(w)
+	parent:append_child(new_container)
+end)
 
--- if #iterm2_windows > 0 then
--- 	c2 = MyContainer(table.remove(iterm2_windows, 1))
--- end
-
--- if #iterm2_windows > 0 then
--- 	c3 = MyContainer(table.remove(iterm2_windows, 1))
--- end
-
--- c0:set_layout_direction("horizontal")
-
--- if c1 ~= nil then
--- 	c0:append_child(c1)
--- end
-
--- if c2 ~= nil then
--- 	c0:append_child(c2)
--- end
-
--- if c3 ~= nil then
--- 	assert(c2 ~= nil)
--- 	c2:set_layout_direction("vertical")
--- 	c2:append_child(c3)
--- 	c2:resize_child(2, 0.2)
--- end
-
--- if c1 and c2 then
--- 	c0:resize_child(1, -0.2)
--- end
+wf:subscribe(hs.window.filter.windowRejected, function(w)
+	local c = MyContainer.existing_for_window(w)
+	if not c then return end
+	c:forget_window()
+	c:delete()
+end)
