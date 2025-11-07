@@ -87,6 +87,22 @@ function MyContainer:delete()
 end
 
 
+---@param is_focused boolean
+function MyContainer:indicate_focus(is_focused)
+    print("indicate_focus", is_focused)
+    assert(self._window)
+    assert(#self._children == 0)
+    assert(#self._children_ratios == 0)
+    if is_focused then
+        self._canvas.rect.strokeWidth = 4
+        self._canvas.rect.strokeColor = {red = 0.11, green = 0.62, blue = 0.83, alpha = 1}
+    else
+        self._canvas.rect.strokeWidth = 1
+        self._canvas.rect.strokeColor = {red = 1, green = 1, blue = 1, alpha = 1}
+    end
+end
+
+
 ---@param w Window
 function MyContainer:set_window(w)
     assert(not self._window)
@@ -264,6 +280,14 @@ function MyContainer:_set_rect(rect)
         self:_relayout()
     end
     self:_redraw()
+end
+
+
+function MyContainer:_refresh_window()
+    assert(self._window)
+    assert(#self._children == 0)
+    assert(#self._children_ratios == 0)
+    self._window:setFrame(self._rect)
 end
 
 

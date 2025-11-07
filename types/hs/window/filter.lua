@@ -3,7 +3,7 @@
 ---@class Filter
 local Filter = {}
 
----@param callback fun()
+---@param callback fun() | string
 ---@return Filter
 function Filter.new(callback) end
 
@@ -27,6 +27,7 @@ local module = {
 	windowRejected="windowRejected",
 	windowCreated="windowCreated",
 	windowDestroyed="windowDestroyed",
+	windowFocused="windowFocused",
 	windowFullscreened="windowFullscreened",
 	windowHidden="windowHidden",
 	windowInCurrentSpace="windowInCurrentSpace",
@@ -38,6 +39,7 @@ local module = {
 	windowOnScreen="windowOnScreen",
 	windowUnfullscreened="windowUnfullscreened",
 	windowUnhidden="windowUnhidden",
+	windowUnfocused="windowUnfocused",
 	windowUnminimized="windowUnminimized",
 	windowVisible="windowVisible",
 }

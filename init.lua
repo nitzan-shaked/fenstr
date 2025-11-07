@@ -35,29 +35,47 @@ core_modules.hyper:bind(".", function() SettingsManager.showSettingsDialog(false
 
 --[[ EXPERIMENTAL TILING ]]--
 
-local MyContainer = require("tiling.my_container")
-local c0 = MyContainer.top_level_for_screen(hs.screen.primaryScreen())
+-- local MyContainer = require("tiling.my_container")
+-- local c0 = MyContainer.top_level_for_screen(hs.screen.primaryScreen())
 
-local function parent_for_new_window(w)
-	local parent = c0
-	while #parent._children > 0 do
-		parent = parent._children[#parent._children]
-	end
-	return parent
-end
+-- local function parent_for_new_window(w)
+-- 	local parent = c0
+-- 	while #parent._children > 0 do
+-- 		parent = parent._children[#parent._children]
+-- 	end
+-- 	return parent
+-- end
 
-local wf = hs.window.filter.new("iTerm2")
+-- local wf = hs.window.filter.new("iTerm2")
 
-wf:subscribe(hs.window.filter.windowAllowed, function(w)
-	if MyContainer.existing_for_window(w) then return end
-	local parent = parent_for_new_window(w)
-	local new_container = MyContainer.new_for_window(w)
-	parent:append_child(new_container)
-end)
+-- wf:subscribe(hs.window.filter.windowAllowed, function(w)
+-- 	if MyContainer.existing_for_window(w) then return end
+-- 	local parent = parent_for_new_window(w)
+-- 	local new_container = MyContainer.new_for_window(w)
+-- 	parent:append_child(new_container)
+-- end)
 
-wf:subscribe(hs.window.filter.windowRejected, function(w)
-	local c = MyContainer.existing_for_window(w)
-	if not c then return end
-	c:forget_window()
-	c:delete()
-end)
+-- wf:subscribe(hs.window.filter.windowRejected, function(w)
+-- 	local c = MyContainer.existing_for_window(w)
+-- 	if not c then return end
+-- 	c:forget_window()
+-- 	c:delete()
+-- end)
+
+-- wf:subscribe(hs.window.filter.windowMoved, function(w)
+-- 	local c = MyContainer.existing_for_window(w)
+-- 	if not c then return end
+-- 	c:_refresh_window()
+-- end)
+
+-- wf:subscribe(hs.window.filter.windowFocused, function(w)
+-- 	local c = MyContainer.existing_for_window(w)
+-- 	if not c then return end
+-- 	c:indicate_focus(true)
+-- end)
+
+-- wf:subscribe(hs.window.filter.windowUnfocused, function(w)
+-- 	local c = MyContainer.existing_for_window(w)
+-- 	if not c then return end
+-- 	c:indicate_focus(false)
+-- end)

@@ -148,9 +148,11 @@ function WinMouse:_stop_drag()
 	self._drag_event_tap:stop()
 	if (self._drag_do_snap) then
 		self._snap_values = {}
-		for _, dim_renderers in pairs(self._snap_edge_renderers or {}) do
-			for _, renderer in pairs(dim_renderers) do
-				renderer:delete()
+		if self["_snap_edge_renderers"] then
+			for _, dim_renderers in pairs(self._snap_edge_renderers or {}) do
+				for _, renderer in pairs(dim_renderers) do
+					renderer:delete()
+				end
 			end
 		end
 		self._snap_edge_renderers = {}
