@@ -66,24 +66,20 @@ end
 
 function Launch:newChromeWindow()
 	self:_check_loaded_and_started()
-
-	local app = hs.application.get("Google Chrome")
-
-	if app and app:isRunning() then
-		hs.osascript.applescript([[
-			tell application "Google Chrome"
-				make new window
-				activate
-			end tell
-		]])
+	local app = hs.appfinder.appFromName("Google Chrome")
+	if not app then
+		hs.application.launchOrFocus("Google Chrome")
 		return
 	end
-
-	local chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-	local args = {
-		"--disable-features=ExtensionManifestV2Unsupported,ExtensionManifestV2Disabled"
-    }
-	hs.task.new(chromePath, nil, args):start()
+	if not app:isRunning() then
+		return
+	end
+	hs.osascript.applescript([[
+		tell application "Google Chrome"
+			make new window
+			activate
+		end tell
+	]])
 end
 
 
