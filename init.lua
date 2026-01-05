@@ -24,14 +24,19 @@ print("-- Loading plugins")
 local PluginsManager = require("plugins_manager")
 PluginsManager.init("plugins")
 
+local plugins = PluginsManager.getPluginsMap()
+
 --[[ SETTINGS ]]
 
 local SettingsManager = require("settings_manager")
-SettingsManager.init(PluginsManager.getPluginsMap())
+SettingsManager.init(plugins)
 SettingsManager.reloadSettings()
 
 core_modules.hyper:bind(",", function() SettingsManager.showSettingsDialog(true,  true,  false) end)
 core_modules.hyper:bind(".", function() SettingsManager.showSettingsDialog(false, false, true ) end)
+--core_modules.hyper:bind("b", function() plugins["launch"]:newChromeWindow() end)
+--core_modules.hyper:bind("e", function() plugins["launch"]:newEdgeWindow() end)
+core_modules.hyper:bind("b", function() plugins["launch"]:newEdgeWindow() end)
 
 --[[ EXPERIMENTAL TILING ]]--
 

@@ -148,7 +148,7 @@ function Hyper:_kbd_event_handler(e)
 	if (not self._modal_active) and is_capslock and is_down then
 		self:_enter()
 
-	elseif self._modal_active and (not is_capslock) and is_down then
+	elseif self._modal_active and (not is_capslock) then  -- and is_down then
 		self._anoter_key_pressed = true
 
 	elseif self._modal_active and is_capslock and is_up then
@@ -165,19 +165,17 @@ end
 
 
 function Hyper:_enter()
-	hs.eventtap.event.newKeyEvent(hs.keycodes.map.capslock, true):post()
 	self._anoter_key_pressed = false
 	self._modal_active = true
 	self._modal:enter()
-	-- hid.led.set("caps", true)
+	hid.led.set("caps", true)
 end
 
 
 function Hyper:_exit()
-	-- hid.led.set("caps", false)
+	hid.led.set("caps", false)
 	self._modal_active = false
 	self._modal:exit()
-	hs.eventtap.event.newKeyEvent(hs.keycodes.map.capslock, false):post()
 	if not self._anoter_key_pressed then
 		hs.eventtap.keyStroke({}, "escape")
 	end

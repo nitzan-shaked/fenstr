@@ -19,6 +19,11 @@ function Launch:__init__()
 			descr="Open a new Finder window.",
 			fn=function() self:newFinderWindow() end,
 		}, {
+			name="newEdgeWindow",
+			label="New Edge Window",
+			descr="Open a new Edge window.",
+			fn=function() self:newEdgeWindow() end,
+		}, {
 			name="newChromeWindow",
 			label="New Chrome Window",
 			descr="Open a new Chrome window.",
@@ -28,11 +33,6 @@ function Launch:__init__()
 			label="New iTerm2 Window",
 			descr="Open a new iTerm2 window.",
 			fn=function() self:newIterm2Window() end,
-		}, {
-			name="newWeztermWindow",
-			label="New Wezterm Window",
-			descr="Open a new Wezterm window.",
-			fn=function() self:newWeztermWindow() end,
 		}, {
 			name="launchMacPass",
 			label="Launch MacPass",
@@ -83,6 +83,25 @@ function Launch:newChromeWindow()
 end
 
 
+function Launch:newEdgeWindow()
+	self:_check_loaded_and_started()
+	local app = hs.appfinder.appFromName("Microsoft Edge")
+	if not app then
+		hs.application.launchOrFocus("Microsoft Edge")
+		return
+	end
+	if not app:isRunning() then
+		return
+	end
+	hs.osascript.applescript([[
+		tell application "Microsoft Edge"
+			make new window
+			activate
+		end tell
+	]])
+end
+
+
 function Launch:newIterm2Window()
 	self:_check_loaded_and_started()
 	-- this is good when iTerm2 is configured with:
@@ -94,20 +113,6 @@ function Launch:newIterm2Window()
 			activate
 		end tell
 	]])
-end
-
-
-function Launch:newWeztermWindow()
-	self:_check_loaded_and_started()
-	local app = hs.appfinder.appFromName("wezterm")
-	if not app then
-		hs.application.launchOrFocus("wezterm")
-		return
-	end
-	if not app:isRunning() then
-		return
-	end
-	app:selectMenuItem("New Window")
 end
 
 
