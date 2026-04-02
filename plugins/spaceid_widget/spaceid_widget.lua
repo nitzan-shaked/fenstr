@@ -23,7 +23,7 @@ local _CFG_FRAME_THICKNESS = {
 	name="frame_thickness",
 	title="Frame Thickness",
 	descr="Thickness of frame around cell.",
-	control="numbe",
+	control="number",
 	default=1,
 }
 

@@ -85,19 +85,19 @@ end
 
 function Launch:newEdgeWindow()
 	self:_check_loaded_and_started()
-	local app = hs.appfinder.appFromName("Microsoft Edge")
-	if not app then
-		hs.application.launchOrFocus("Microsoft Edge")
-		return
-	end
-	if not app:isRunning() then
-		return
-	end
 	hs.osascript.applescript([[
-		tell application "Microsoft Edge"
-			make new window
-			activate
-		end tell
+		set appName to "Microsoft Edge"
+
+		if application appName is not running then
+			tell application appName to launch
+
+		else
+			tell application appName
+				make new window
+				activate
+			end tell
+
+		end if
 	]])
 end
 
