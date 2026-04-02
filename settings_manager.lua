@@ -2,7 +2,7 @@ local json = require("hs.json")
 local screen = require("hs.screen")
 local webview = require("hs.webview")
 local usercontent = require("hs.webview.usercontent")
-local spoons = require("hs.spoons")
+
 
 local class = require("utils.class")
 local WebServer = require("utils.web_server")
@@ -67,7 +67,7 @@ function cls.init(plugins)
 		cls._plugin_hotkeys_section_schema[plugin_name] = plugin_hotkeys_schema
 	end
 
-	cls._web_server = WebServer(spoons.scriptPath() .. "web")
+	cls._web_server = WebServer(hs.configdir .. "/web")
 	cls._initialized = true
 end
 

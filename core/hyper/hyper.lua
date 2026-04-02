@@ -27,8 +27,8 @@ function Hyper:__init__()
 	self._modal = nil
 	self._modal_active = false
 	self._anoter_key_pressed = false
-	---@type table<string, integer>?
-	self._bound_keys_idx = nil
+	---@type table<string, HotKey>?
+	self._bound_keys = nil
 end
 
 
@@ -43,7 +43,7 @@ function Hyper:loadImpl()
 	self._modal = hs.hotkey.modal.new()
 	self._modal_active = false
 	self._anoter_key_pressed = false
-	self._bound_keys_idx = {}
+	self._bound_keys = {}
 end
 
 
@@ -101,7 +101,7 @@ function Hyper:stopImpl()
 			["UserKeyMapping"] = self._orig_key_mapping,
 		})
 	)
-	hid.caps.set(self._orig_capslock_state)
+	hid.capslock.set(self._orig_capslock_state)
 end
 
 
@@ -118,25 +118,21 @@ end
 function Hyper:bind(key, fn, with_repeat)
 	self:_check_loaded_and_started()
 	self._modal:bind({}, key, fn, nil, (with_repeat or nil) and fn)
-	self._bound_keys_idx[key] = #self._modal.keys
+	self._bound_keys[key] = self._modal.keys[#self._modal.keys]
 end
 
 
 ---@param key string
 function Hyper:unbind(key)
 	self:_check_loaded_and_started()
-	local i = self._bound_keys_idx[key]
-	if i == nil then return end
-	local hk = self._modal.keys[i]
+	local hk = self._bound_keys[key]
+	if hk == nil then return end
 	hk:disable()
 	hk:delete()
-	table.remove(self._modal.keys, i)
-	self._bound_keys_idx[key] = nil
-	for k, v in pairs(self._bound_keys_idx) do
-		if v > i then
-			self._bound_keys_idx[k] = v - 1
-		end
+	for i, k in ipairs(self._modal.keys) do
+		if k == hk then table.remove(self._modal.keys, i); break end
 	end
+	self._bound_keys[key] = nil
 end
 
 

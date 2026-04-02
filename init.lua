@@ -22,7 +22,7 @@ core_modules.hyper:bind("y", hs.toggleConsole)
 
 print("-- Loading plugins")
 local PluginsManager = require("plugins_manager")
-PluginsManager.init("plugins")
+PluginsManager.init(hs.configdir .. "/plugins")
 
 local plugins = PluginsManager.getPluginsMap()
 
@@ -34,8 +34,6 @@ SettingsManager.reloadSettings()
 
 core_modules.hyper:bind(",", function() SettingsManager.showSettingsDialog(true,  true,  false) end)
 core_modules.hyper:bind(".", function() SettingsManager.showSettingsDialog(false, false, true ) end)
---core_modules.hyper:bind("b", function() plugins["launch"]:newChromeWindow() end)
---core_modules.hyper:bind("e", function() plugins["launch"]:newEdgeWindow() end)
 core_modules.hyper:bind("b", function() plugins["launch"]:newEdgeWindow() end)
 
 --[[ EXPERIMENTAL TILING ]]--

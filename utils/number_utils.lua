@@ -18,7 +18,7 @@ end
 ---@param x number
 ---@param x1 number
 ---@return number
-local function no_less(x, x1)
+local function cap_below(x, x1)
 	return x < x1 and x1 or x
 end
 
@@ -26,7 +26,7 @@ end
 ---@param x number
 ---@param x2 number
 ---@return number
-local function no_more(x, x2)
+local function cap_above(x, x2)
 	return x > x2 and x2 or x
 end
 
@@ -43,7 +43,7 @@ end
 return {
 	sign=sign,
 	clip=clip,
-	cap_below=no_less,
-	cap_above=no_more,
+	cap_below=cap_below,
+	cap_above=cap_above,
 	interpolate=interpolate,
 }

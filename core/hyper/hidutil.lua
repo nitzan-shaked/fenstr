@@ -4,7 +4,7 @@ local cls = {}
 local function escape_for_sh(s)
 	-- convert every char in s that is not alphanumeric to an escaped version
 	return s:gsub("[^%w]", function(c)
-		return string.format("\\" .. c)
+		return "\\" .. c
 	end)
 end
 

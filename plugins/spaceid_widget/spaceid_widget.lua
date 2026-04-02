@@ -57,15 +57,15 @@ end
 function SpaceIdWidget:startImpl()
 	self._screen_watcher:start()
 	self._space_watcher:start()
-    self._menubar_item:returnToMenuBar()
+	self._menubar_item:returnToMenuBar()
 	self._menubar_item:setClickCallback(function() self:_on_menu_click() end)
 	self:_on_screen_changed()
 end
 
 function SpaceIdWidget:stopImpl()
-    self._menubar_item:removeFromMenuBar()
+	self._menubar_item:removeFromMenuBar()
 	self._screen_watcher:stop()
-	self._system_watcher:stop()
+	self._space_watcher:stop()
 end
 
 function SpaceIdWidget:unloadImpl()
@@ -79,7 +79,7 @@ function SpaceIdWidget:unloadImpl()
 	end
 
 	self._screen_watcher = nil
-	self._system_watcher = nil
+	self._space_watcher = nil
 end
 
 
@@ -113,7 +113,7 @@ function SpaceIdWidget:_rebuild_canvas()
 		strokeColor = {white = 1, alpha = 0.7},
 		roundedRectRadii = {xRadius = 5, yRadius = 5},
 	})
-    for i = 1, #self._spaces_for_screen do
+	for i = 1, #self._spaces_for_screen do
 		self._canvas:appendElements({
 			id = "text_" .. i,
 			type = "text",

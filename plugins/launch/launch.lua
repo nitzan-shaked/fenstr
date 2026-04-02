@@ -15,37 +15,38 @@ function Launch:__init__()
 		{},
 		{{
 			name="newFinderWindow",
-			label="New Finder Window",
+			title="New Finder Window",
 			descr="Open a new Finder window.",
 			fn=function() self:newFinderWindow() end,
 		}, {
 			name="newEdgeWindow",
-			label="New Edge Window",
+			title="New Edge Window",
 			descr="Open a new Edge window.",
 			fn=function() self:newEdgeWindow() end,
+			default={"hyper", "b"},
 		}, {
 			name="newChromeWindow",
-			label="New Chrome Window",
+			title="New Chrome Window",
 			descr="Open a new Chrome window.",
 			fn=function() self:newChromeWindow() end,
 		}, {
 			name="newIterm2Window",
-			label="New iTerm2 Window",
+			title="New iTerm2 Window",
 			descr="Open a new iTerm2 window.",
 			fn=function() self:newIterm2Window() end,
 		}, {
 			name="launchMacPass",
-			label="Launch MacPass",
+			title="Launch MacPass",
 			descr="Launch or focus MacPass.",
 			fn=function() self:launchMacPass() end,
 		}, {
 			name="launchNotes",
-			label="Launch Notes",
+			title="Launch Notes",
 			descr="Launch or focus Notes.",
 			fn=function() self:launchNotes() end,
 		}, {
 			name="startScreenSaver",
-			label="Start Screen Saver",
+			title="Start Screen Saver",
 			descr="Start the screen saver.",
 			fn=function() self:startScreenSaver() end,
 		}}

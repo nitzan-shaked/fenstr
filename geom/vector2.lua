@@ -44,25 +44,19 @@ end
 ---@param other Vector2
 ---@return boolean
 function Vector2:__eq(other)
-	local my_coords = self.coords
-	local other_coords = other.coords
-	return my_coords[1] == other_coords[1] and my_coords[2] == other_coords[2]
+	return self[1] == other[1] and self[2] == other[2]
 end
 
 ---@param other Vector2
 ---@return Vector2
 function Vector2:__add(other)
-	local my_coords = self.coords
-	local other_coords = other.coords
-	return self.__cls__(my_coords[1] + other_coords[1], my_coords[2] + other_coords[2])
+	return self.__cls__(self[1] + other[1], self[2] + other[2])
 end
 
 ---@param other Vector2
 ---@return Vector2
 function Vector2:__sub(other)
-	local my_coords = self.coords
-	local other_coords = other.coords
-	return self.__cls__(my_coords[1] - other_coords[1], my_coords[2] - other_coords[2])
+	return self.__cls__(self[1] - other[1], self[2] - other[2])
 end
 
 ---@param k number
@@ -71,14 +65,12 @@ function Vector2:__mul(k)
 	if type(self) == "number" then
 		self, k = k, self
 	end
-	local coords = self.coords
-	return self.__cls__(coords[1] * k, coords[2] * k)
+	return self.__cls__(self[1] * k, self[2] * k)
 end
 
 ---@return Vector2
 function Vector2:__unm()
-	local coords = self.coords
-	return self.__cls__(-coords[1], -coords[2])
+	return self.__cls__(-self[1], -self[2])
 end
 
 ---@param axis number

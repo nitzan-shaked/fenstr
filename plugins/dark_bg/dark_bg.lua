@@ -32,6 +32,8 @@ end
 
 
 function DarkBg:loadImpl()
+	-- light_level is persisted directly via hs.settings (not through SettingsManager)
+	-- because it is runtime state adjusted by hotkeys, not a configuration setting.
 	---@type number
 	self._light_level = hs.settings.get(self.name .. ".light_level") or 1
 
